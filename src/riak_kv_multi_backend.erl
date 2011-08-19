@@ -29,6 +29,7 @@
          stop/1,
          get/3,
          put/4,
+         put/5,
          delete/3,
          drop/1,
          fold_buckets/4,
@@ -167,6 +168,16 @@ get(Bucket, Key, State) ->
 put(Bucket, Key, Value, State) ->
     {_Name, Module, SubState} = get_backend(Bucket, State),
     Module:put(Bucket, Key, Value, SubState).
+
+%% @doc Insert an object with secondary index 
+%% information into the kv backend
+-type index_spec() :: {add, Index, SecondaryKey} | {remove, Index, SecondaryKey}.
+-spec put(riak_object:bucket(), riak_object:key(), [index_spec()], binary(), state()) ->
+                 {ok, state()} |
+                 {error, term(), state()}.
+put(Bucket, PrimaryKey, IndexSpecs, Value, State) ->
+    {_Name, Module, SubState} = get_backend(Bucket, State),
+    Module:put(Bucket, PrimaryKey, IndexSpecs, Value, SubState).
 
 %% @doc Delete an object from the backend
 -spec delete(riak_object:bucket(), riak_object:key(), state()) ->
